@@ -172,6 +172,14 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
             velocityX = 1;
             velocityY = 0;
         }
+
+      if(e.getKeyCode()==KeyEvent.VK_SPACE || e.getKeyCode() == KeyEvent.VK_ENTER && gameOver){
+        gameReset();
+      }
+
+
+
+
     }
 
     @Override
@@ -181,4 +189,23 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
     @Override
     public void keyReleased(KeyEvent e) {
     }
+
+
+    void gameReset(){
+     gameOver = false;
+        snakeHead.x = 5;
+            snakeHead.y = 5;
+            snakeBody.clear();
+            velocityX = 0;
+            velocityY = 0;
+            placeFood();
+            gameLoop.start();
+
+
+    }
+    
+
+
+
+
 }
