@@ -34,6 +34,7 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
     int velocityX = 0;
     int velocityY = 0;
     boolean gameOver = false;
+    int highScore = 0;
 
 
     SnakeFrame(int boardWidth, int boardHeight) {
@@ -87,7 +88,7 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
         g.setFont(new Font("Aarial", Font.PLAIN, 16));
         if(gameOver){
             g.setColor(Color.red);
-            g.drawString("Game Over! Points: " + String.valueOf(snakeBody.size()), tileSize -16, tileSize);}        
+            g.drawString("Game Over!", tileSize -16, tileSize);}        
       else{
             g.drawString("Points: " + String.valueOf(snakeBody.size()), tileSize -16, tileSize);
         }
@@ -99,6 +100,12 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
         g.fill3DRect(food.x * tileSize, food.y * tileSize, tileSize, tileSize, true);
 
         
+      g.setColor(Color.WHITE);
+      g.drawString("High Score: " + String.valueOf(highScore), tileSize + 470, tileSize );
+
+
+
+
     }
 
     public void placeFood() {
@@ -108,12 +115,14 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
 
     public boolean Collision(Tile tile1, Tile tile2) {
         return tile1.x == tile2.x && tile1.y == tile2.y;
+        
     }
 
     public void move() {
         // A cobra comeu a comida
         if (Collision(snakeHead, food)) {
             snakeBody.add(new Tile(food.x, food.y));
+            updateHighScore();
             placeFood();
         }
         // Move o corpo
@@ -152,12 +161,31 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
         move();
         repaint();
 
-        if(gameOver){
-            gameLoop.stop();
-        }
+        if(gameOver)
+            {gameLoop.stop();}
     }
 
-    @Override
+    void gameReset(){
+     gameOver = false;
+        snakeHead.x = 5;
+            snakeHead.y = 5;
+            snakeBody.clear();
+            velocityX = 0;
+            velocityY = 0;
+            placeFood();
+            gameLoop.start();
+
+
+    }
+
+    void updateHighScore(){
+    if (snakeBody.size() > highScore){
+    highScore = snakeBody.size();
+    };
+
+}
+
+ @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_UP && velocityY != 1) {
             velocityX = 0;
@@ -177,9 +205,6 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
         gameReset();
       }
 
-
-
-
     }
 
     @Override
@@ -191,19 +216,15 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
     }
 
 
-    void gameReset(){
-     gameOver = false;
-        snakeHead.x = 5;
-            snakeHead.y = 5;
-            snakeBody.clear();
-            velocityX = 0;
-            velocityY = 0;
-            placeFood();
-            gameLoop.start();
 
 
-    }
-    
+
+
+
+
+
+
+
 
 
 

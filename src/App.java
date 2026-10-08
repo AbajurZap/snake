@@ -15,7 +15,6 @@ public class App {
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        System.out.println("Debug: Frame Criado");
 
         SnakeFrame snakeFrame = new SnakeFrame(boardWindth, boardHeight);
         frame.add(snakeFrame);
