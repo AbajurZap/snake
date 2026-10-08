@@ -1,4 +1,8 @@
-
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -21,18 +25,11 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
 
     int boardWidth;
     int boardHeight;
-
-    // Snake
-
     Tile snakeHead;
     ArrayList<Tile> snakeBody = new ArrayList<>();
-
-    // Food
-
     Tile food;
     Random random;
 
-    // Logic
 
     int tileSize = 25;
     Timer gameLoop;
@@ -42,7 +39,6 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
     int highScore = 0;
     boolean gameWon = false;
     private int currentSpeed = INITIAL_SPEED;
-
     private static final int INITIAL_SPEED = 100;
     private static final int MIN_SPEED = 50;
     private static final int WIN_SCORE = 100;
@@ -51,27 +47,18 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
 
         this.boardWidth = boardWidth;
         this.boardHeight = boardHeight;
-
         setPreferredSize(new Dimension(this.boardWidth, this.boardHeight));
         setBackground(Color.BLACK);
         addKeyListener(this);
         setFocusable(true);
-
-        // Snake
-
         snakeHead = new Tile(5, 5);
         snakeBody = new ArrayList<Tile>();
-
-        // Food
-
         food = new Tile(10, 10);
         random = new Random();
         placeFood();
-
-        // Game loop
-
         gameLoop = new Timer(INITIAL_SPEED, this);
         gameLoop.setDelay(currentSpeed);
+        loadHighScore();
         gameLoop.start();
 
     }
@@ -115,8 +102,6 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
            g.drawString("Points: " + String.valueOf(snakeBody.size()), tileSize - 16, tileSize);
              }
 
-        // Comida
-
         g.setColor(Color.RED);
         //g.fill3DRect(food.x * tileSize, food.y * tileSize, tileSize, tileSize);
         g.fill3DRect(food.x * tileSize, food.y * tileSize, tileSize, tileSize, true);
@@ -137,8 +122,6 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
 
     public void move() {
 
-        // A cobra comeu a comida
-
         if (checkCollision(snakeHead, food)) {
             snakeBody.add(new Tile(food.x, food.y));
             updateHighScore();
@@ -147,8 +130,6 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
             checkWinCondition();
         }
 
-        // Move o corpo
-
         for (int i = snakeBody.size() - 1; i > 0; i--) {
             Tile snakePart = snakeBody.get(i);
             Tile previousPart = snakeBody.get(i - 1);
@@ -156,15 +137,11 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
             snakePart.y = previousPart.y;
         }
 
-        // Primeiro pedaço do corpo segue a cabeça
-
         if (snakeBody.size() > 0) {
             Tile firstPart = snakeBody.get(0);
             firstPart.x = snakeHead.x;
             firstPart.y = snakeHead.y;
         }
-
-        // Move a cabeça
 
         snakeHead.x += velocityX;
         snakeHead.y += velocityY;
@@ -213,6 +190,7 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
     void updateHighScore() {
         if (snakeBody.size() > highScore) {
             highScore = snakeBody.size();
+            saveHighScore();
         }
     }
 
@@ -223,7 +201,6 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
         }
     }
 
-
     void checkWinCondition() {
         if (snakeBody.size() >= WIN_SCORE) {
             gameWon = true;
@@ -231,6 +208,35 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
         }
     }
 
+    private void loadHighScore() {
+    Path path = Paths.get("highscore.txt");
+
+    if (Files.exists(path)) {
+        try {
+            String score = new String(
+                Files.readAllBytes(path),
+                StandardCharsets.UTF_8
+            ).trim();
+
+            highScore = Integer.parseInt(score);
+        } catch (IOException | NumberFormatException e) {
+            System.out.println("Could not load high score: " + e.getMessage());
+        }
+    }
+}
+
+private void saveHighScore() {
+    Path path = Paths.get("highscore.txt");
+
+    try {
+        Files.write(
+            path,
+            String.valueOf(highScore).getBytes(StandardCharsets.UTF_8)
+        );
+    } catch (IOException e) {
+        System.out.println("Could not save high score: " + e.getMessage());
+    }
+}
 
     @Override
     public void keyPressed(KeyEvent e) {
