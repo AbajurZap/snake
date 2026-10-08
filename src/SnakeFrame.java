@@ -40,10 +40,12 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
     int velocityY = 0;
     boolean gameOver = false;
     int highScore = 0;
+    boolean gameWon = false;
+    private int currentSpeed = INITIAL_SPEED;
 
     private static final int INITIAL_SPEED = 100;
     private static final int MIN_SPEED = 50;
-    private int currentSpeed = INITIAL_SPEED;
+    private static final int WIN_SCORE = 100;
 
     SnakeFrame(int boardWidth, int boardHeight) {
 
@@ -101,13 +103,17 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
 
         g.setFont(new Font("Arial", Font.PLAIN, 16));
 
-        if(gameOver){
-            g.setColor(Color.red);
-            g.drawString("Game Over!", tileSize -16, tileSize);
-        }
-        else{
-            g.drawString("Points: " + String.valueOf(snakeBody.size()), tileSize -16, tileSize);
-        }
+        if (gameWon) {
+             g.setColor(Color.GREEN);
+             g.drawString("You Win!", tileSize - 16, tileSize);
+              }
+            else if (gameOver) {
+            g.setColor(Color.RED);
+            g.drawString("Game Over!", tileSize - 16, tileSize);
+             }
+           else {
+           g.drawString("Points: " + String.valueOf(snakeBody.size()), tileSize - 16, tileSize);
+             }
 
         // Comida
 
@@ -138,6 +144,7 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
             updateHighScore();
             updateGameSpeed();
             placeFood();
+            checkWinCondition();
         }
 
         // Move o corpo
@@ -188,7 +195,7 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
     }
 
     void resetGame() {
-
+        gameWon = false;
         gameOver = false;
         snakeHead.x = 5;
         snakeHead.y = 5;
@@ -209,12 +216,21 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
         }
     }
 
-    private void updateGameSpeed() {
+     void updateGameSpeed() {
         if (snakeBody.size() > 0 && snakeBody.size() % 5 == 0) {
             currentSpeed = Math.max(currentSpeed - 10, MIN_SPEED);
             gameLoop.setDelay(currentSpeed);
         }
     }
+
+
+    void checkWinCondition() {
+        if (snakeBody.size() >= WIN_SCORE) {
+            gameWon = true;
+            gameLoop.stop();
+        }
+    }
+
 
     @Override
     public void keyPressed(KeyEvent e) {
@@ -234,7 +250,7 @@ public class SnakeFrame extends JPanel implements ActionListener, KeyListener {
         }
 
         if ((e.getKeyCode() == KeyEvent.VK_SPACE ||
-             e.getKeyCode() == KeyEvent.VK_ENTER) && gameOver) {
+             e.getKeyCode() == KeyEvent.VK_ENTER) && (gameOver || gameWon)) {
             resetGame();
         }
 
